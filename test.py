@@ -13,7 +13,7 @@ def get_orb_for_frames(video_path, orb, max_len=1):
     f = 0
     while ret and f < max_len: 
         ret, img = cap.read()
-        h,w = img.shape[0] // 2, img.shape[1] // 2
+        w,h = img.shape[0] // 2, img.shape[1] // 2
 
         if ret:
             img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
