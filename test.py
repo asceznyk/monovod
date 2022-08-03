@@ -19,6 +19,8 @@ def orb_keyframe(img):
             kps.extend(_kp)
             #des.extend(_des)
 
+            cv2.imwrite(f"img_{ry}_{rx}.jpg", img[rx:rx+gx, ry:ry+gy])
+
     return cv2.drawKeypoints(img, kps, None, color=(0, 255, 0), flags=0)
 
 def vslam(video_path, orb, max_len=1):
