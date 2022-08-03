@@ -27,5 +27,5 @@ def get_orb_for_frames(video_path, orb, max_len=1):
 
     return
 
-get_orb_for_frames('videos/test_countryroad.mp4', max_len=1)
+get_orb_for_frames('/content/videos/test_countryroad.mp4', max_len=1)
 
