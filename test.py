@@ -7,7 +7,13 @@ import matplotlib.pyplot as plt
 
 orb = cv2.ORB_create()
 
-def get_orb_for_frames(video_path, orb, max_len=1):
+def orb_keyframe(img):
+    img = cv2.resize(img, (h,w))
+    kps = orb.detect(img)
+    kps, des = orb.compute(img, kps)
+    return cv2.drawKeypoints(img, kps, None, color=(0, 255, 0), flags=0)
+
+def vslam(video_path, orb, max_len=1):
     cap = cv2.VideoCapture(video_path)
     ret = True
     f = 0
@@ -16,20 +22,14 @@ def get_orb_for_frames(video_path, orb, max_len=1):
         w,h = img.shape[0] // 2, img.shape[1] // 2
 
         if ret:
-            #img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
-            img = cv2.resize(img, (h,w))
-            kps = orb.detect(img)
-            kps, des = orb.compute(img, kps)
-            kpimg = cv2.drawKeypoints(img, kps, None, color=(0, 255, 0), flags=0)
-            
+            kpimg = orb_keyframe(img)
             plt.imshow(kpimg)
             plt.show()
-
             cv2.imwrite(f"keyframe.jpg", kpimg)
 
         f += 1
 
     return
 
-get_orb_for_frames('/content/videos/test_countryroad.mp4', orb, max_len=1)
+vslam('/content/videos/test_countryroad.mp4', orb, max_len=1)
 
