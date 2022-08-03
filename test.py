@@ -12,9 +12,12 @@ def get_orb_for_frames(video_path, orb, max_len=1):
     ret = True
     f = 0
     while ret and f < max_len: 
-        ret, img = cap.read() 
+        ret, img = cap.read()
+        h,w = img.shape[0] // 2, img.shape[1] // 2
+
         if ret:
             img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
+            img = cv2.resize(img, (h,w))
             kps = orb.detect(img)
             kps, des = orb.compute(img, kps)
             kpimg = cv2.drawKeypoints(img, kps, None, color=(0, 255, 0), flags=0)
