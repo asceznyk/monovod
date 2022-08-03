@@ -16,7 +16,7 @@ def get_orb_for_frames(video_path, orb, max_len=1):
         w,h = img.shape[0] // 2, img.shape[1] // 2
 
         if ret:
-            img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
+            #img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
             img = cv2.resize(img, (h,w))
             kps = orb.detect(img)
             kps, des = orb.compute(img, kps)
