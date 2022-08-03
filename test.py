@@ -13,13 +13,13 @@ def orb_keyframe(img):
     img = cv2.resize(img, (h,w)) 
 
     kps, des = [], []
-    for ry in range(0, h, gy):
-        for rx in range(0, w, gx):
-            _kp, _des = orb.compute(img[rx:rx+gx, ry:ry+gy], orb.detect(img))
+    sy = h // gy
+    sx = w // gx
+    for ry in range(0, h, sy):
+        for rx in range(0, w, sx):
+            _kp, _des = orb.compute(img[rx:rx+sx, ry:ry+sy], orb.detect(img))
             kps.extend(_kp)
             #des.extend(_des)
-
-            cv2.imwrite(f"img_{ry}_{rx}.jpg", img[rx:rx+gx, ry:ry+gy])
 
     return cv2.drawKeypoints(img, kps, None, color=(0, 255, 0), flags=0)
 
