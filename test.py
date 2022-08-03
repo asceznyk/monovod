@@ -17,7 +17,7 @@ def get_orb_for_frames(video_path, orb, max_len=1):
             img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
             kps = orb.detect(img)
             kps, des = orb.compute(img, kps)
-            kpimg = cv2.drawKeyPoints(img, kps, None, color=(0, 255, 0), flags=0)
+            kpimg = cv2.drawKeypoints(img, kps, None, color=(0, 255, 0), flags=0)
             
             plt.imshow(kpimg)
             plt.show()
