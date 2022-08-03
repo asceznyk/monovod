@@ -3,7 +3,7 @@ import cv2
 
 import numpy as np
 
-import matlplotlib.pylot as plt
+import matplotlib.pylot as plt
 
 orb = cv2.ORB_create()
 
