@@ -21,7 +21,8 @@ def get_orb_for_frames(video_path, orb, max_len=1):
             
             plt.imshow(kpimg)
             plt.show()
-            plt.savefig('keyframe.jpg')
+
+            cv2.imwrite(f"keyframe.jpg", kpimg)
 
         f += 1
 
