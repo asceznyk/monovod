@@ -16,7 +16,7 @@ def orb_keyframe(img):
     sy = h // gy
     sx = w // gx
 
-    print(sy, sx)
+    print(h, w, sy, sx)
 
     for ry in range(0, h, sy):
         for rx in range(0, w, sx):
