@@ -5,7 +5,7 @@ import numpy as np
 
 import matplotlib.pyplot as plt
 
-orb = cv2.ORB_create(nfeatures=100000)
+orb = cv2.ORB_create()
 
 def orb_keyframe(img):
     kps, des = orb.compute(img, orb.detect(img))
