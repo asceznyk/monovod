@@ -15,6 +15,9 @@ def orb_keyframe(img):
     kps, des = [], []
     sy = h // gy
     sx = w // gx
+
+    print(sy, sx)
+
     for ry in range(0, h, sy):
         for rx in range(0, w, sx):
             _kp, _des = orb.compute(img[rx:rx+sx, ry:ry+sy], orb.detect(img))
