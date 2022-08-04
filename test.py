@@ -17,7 +17,8 @@ def vslam(video_path, max_len=1):
         if ret:
             w,h = img.shape[0] // 2, img.shape[1] // 2 
             img = cv2.resize(img, (h,w)) 
-            kps, des = gftt_keyframe(img)  
+            kps, des = gftt_keyframe(img) 
+            kpimg = cv2.drawKeypoints(img, kps, None, color=(0,255,0), flags=0)
             cv2.imwrite(f"keyframe.jpg", kpimg)
 
         f += 1

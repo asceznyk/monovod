@@ -7,6 +7,5 @@ def gftt_keyframe(img):
     kps = [cv2.KeyPoint(x=f[0][0], y=f[0][1], size=20) for f in pts]
     kps, des = orb.compute(img, kps)
     return kps, des
-    #return cv2.drawKeypoints(img, kps, None, color=(0,255,0), flags=0)
 
 
