@@ -18,13 +18,14 @@ def orb_keyframe(img):
 
     print(h, w, sy, sx)
 
-    for ry in range(0, h, sy):
+    '''for ry in range(0, h, sy):
         for rx in range(0, w, sx):
             _kp, _des = orb.compute(img[rx:rx+sx, ry:ry+sy], orb.detect(img))
             kps.extend(_kp)
             #cv2.line(img, (x, 0), (x, h), (255, 0, 0), 1, 1)
-            #des.extend(_des)
+            #des.extend(_des)'''
 
+    kps, des = orb.compute(img, orb.detect(img))
     return cv2.drawKeypoints(img, kps, None, color=(0, 255, 0), flags=0)
 
 def vslam(video_path, orb, max_len=1):
