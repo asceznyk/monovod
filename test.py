@@ -8,25 +8,16 @@ import matplotlib.pyplot as plt
 orb = cv2.ORB_create(nfeatures=100000)
 
 def orb_keyframe(img):
-    gx, gy = 5, 5
     w,h = img.shape[0] // 2, img.shape[1] // 2
     img = cv2.resize(img, (h,w)) 
-
-    kps, des = [], []
-    sy = h // gy
-    sx = w // gx
-
-    print(h, w, sy, sx)
-
-    '''for ry in range(0, h, sy):
-        for rx in range(0, w, sx):
-            _kp, _des = orb.compute(img[rx:rx+sx, ry:ry+sy], orb.detect(img))
-            kps.extend(_kp)
-            #cv2.line(img, (x, 0), (x, h), (255, 0, 0), 1, 1)
-            #des.extend(_des)'''
-
     kps, des = orb.compute(img, orb.detect(img))
-    return cv2.drawKeypoints(img, kps, None, color=(0, 255, 0), flags=0)
+    return cv2.drawKeypoints(img, kps, None, color=(0,255,0), flags=0)
+
+def gftt_keyframe(img):
+    pts = cv2.goodFeaturesToTrack(np.mean(img, axis=2).astype(np.uint8), 3000, qualityLevel=0.01, minDistance=7)
+    kps = [cv2.KeyPoint(x=f[0][0], y=f[0][1], _size=20) for f in pts]
+    kps, des = orb.compute(img, kps)
+    return cv2.drawKeypoints(img, kps, None, color=(0,255,0), flags=0)
 
 def vslam(video_path, orb, max_len=1):
     cap = cv2.VideoCapture(video_path)
@@ -35,7 +26,8 @@ def vslam(video_path, orb, max_len=1):
     while ret and f < max_len: 
         ret, img = cap.read()
         if ret:
-            kpimg = orb_keyframe(img)
+            #kpimg = orb_keyframe(img)
+            kpimg = gftt_keyframe(img)
             plt.imshow(kpimg)
             plt.show()
             cv2.imwrite(f"keyframe.jpg", kpimg)
