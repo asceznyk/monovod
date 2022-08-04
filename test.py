@@ -8,7 +8,7 @@ import matplotlib.pyplot as plt
 orb = cv2.ORB_create()
 
 def orb_keyframe(img):
-    gx, gy = 120, 160
+    gx, gy = 4, 4
     w,h = img.shape[0] // 2, img.shape[1] // 2
     img = cv2.resize(img, (h,w)) 
 
