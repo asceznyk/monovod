@@ -8,7 +8,7 @@ import matplotlib.pyplot as plt
 orb = cv2.ORB_create()
 
 def orb_keyframe(img):
-    gx, gy = 16, 16
+    gx, gy = 120, 160
     w,h = img.shape[0] // 2, img.shape[1] // 2
     img = cv2.resize(img, (h,w)) 
 
@@ -19,6 +19,7 @@ def orb_keyframe(img):
         for rx in range(0, w, sx):
             _kp, _des = orb.compute(img[rx:rx+sx, ry:ry+sy], orb.detect(img))
             kps.extend(_kp)
+            cv2.line(img, (x, 0), (x, h), (255, 0, 0), 1, 1)
             #des.extend(_des)
 
     return cv2.drawKeypoints(img, kps, None, color=(0, 255, 0), flags=0)
