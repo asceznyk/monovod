@@ -5,7 +5,7 @@ import numpy as np
 
 import matplotlib.pyplot as plt
 
-orb = cv2.ORB_create()
+orb = cv2.ORB_create(n_features=100000)
 
 def orb_keyframe(img):
     gx, gy = 10, 10
