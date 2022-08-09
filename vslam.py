@@ -46,7 +46,6 @@ class vSLAM():
         z[:3, :3] = r
         z[:3, 3] = t
         return z
-
     
     def decomp_essential_mat(self, e, q1, q2): 
         def sum_z_cal_relative_scale(r, t):
