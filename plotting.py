@@ -41,14 +41,9 @@ def visualize_paths(gt_path, pred_path, html_tile="", title="VO exercises", file
     fig1.multi_line("disx", "disy", source=source, legend_label="Error", color="red", line_dash="dashed")
     fig1.legend.click_policy = "hide"
 
-    fig2 = figure(title="Error", tools=tools, width_policy="max", toolbar_location="above",
-                  x_axis_label="frame", y_axis_label="error")
-    fig2.circle("diffx", "diffy", source=source, hover_fill_color="firebrick", legend_label="Error")
-    fig2.line("diffx", "diffy", source=source, legend_label="Error")
-
     show(layout([Div(text=f"<h1>{title}</h1>"),
                  Div(text="<h2>Paths</h1>"),
-                 [fig1, fig2],
+                 [fig1],
                  ], sizing_mode='scale_width'))
 
 
