@@ -4,15 +4,20 @@ import numpy as np
 from utils import *
 
 class vODOM():
-    def __init__(self, calibs_path, cm=None):
+    def __init__(self, calibs_path=None):
         self.orb = cv2.ORB_create(3000) 
         index_params = dict(algorithm=6, table_number=6, key_size=12, multi_probe_level=1)
         search_params = dict(checks=50)
         self.flann = cv2.FlannBasedMatcher(indexParams=index_params, searchParams=search_params)
         self.frames = []
-        self.pm, _cm = read_calib(calibs_path)
-        self.cm = cm if cm is not None else _cm
-        print(self.cm)
+        self.pm, self.cm = None, None
+        if calibs_path is not None:
+            self.pm, self.cm = read_calib(calibs_path)
+            print(self.pm)
+
+    def fill_calib(self):
+        self.pm, self.cm = init_cam_intrinsics(self.frames[-1]) 
+        print(self.pm)
 
     def add_frame(self, f):
         self.frames.append(f)
