@@ -37,12 +37,14 @@ def run(video_path, poses_path, calibs_path):
     while ret: 
         ret, img = cap.read()
         if ret:
+            img = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY) 
             img = cv2.resize(img, (h,w)) 
-            if f > 1: 
-                q1, q2 = vodom.get_matches(draw_matches=0)
+            f = vodom.add_frame(img)-1
+
+            if f > 0: 
+                q1, q2 = vodom.get_matches(draw_matches=1)
                 tsfm = vodom.get_pose(q1, q2)
-                cur_pose = np.matmul(cur_pose, np.linalg.inv(tsfm))
-            f = vodom.add_frame(img)
+                cur_pose = np.matmul(cur_pose, np.linalg.inv(tsfm)) 
 
         gt_path.append((gt_poses[f][0, 3], gt_poses[f][2, 3]))
         est_path.append((cur_pose[0, 3], cur_pose[2, 3]))

@@ -19,9 +19,9 @@ class vODOM():
         return len(self.frames)
 
     def get_matches(self, draw_matches=1):
-        img1, img2 = self.frames[-2], self.frames[-1]
-        kp1, des1 = self.orb.detectAndCompute(img1, None) 
-        kp2, des2 = self.orb.detectAndCompute(img2, None)
+        #img1, img2 = self.frames[-2], self.frames[-1]
+        kp1, des1 = self.orb.detectAndCompute(self.frames[-2], None) 
+        kp2, des2 = self.orb.detectAndCompute(self.frames[-1], None)
         matches = self.flann.knnMatch(des1, des2, k=2)
 
         good = []
@@ -35,9 +35,9 @@ class vODOM():
                                matchesMask = None,
                                flags = 2)
 
-            img3 = cv2.drawMatches(img1, kp1, img2, kp2, good, None, **draw_params)
-            cv2.imshow('fuck_you',img3)
-            cv2.waitKey(200)
+            #img3 = cv2.drawMatches(self.frames[-1], kp1, self.frames[-2], kp2, good, None, **draw_params)
+            #cv2.imshow('dosent_matter',img3)
+            #cv2.waitKey(200)
 
         return np.float32([kp1[m.queryIdx].pt for m in good]), np.float32([kp2[m.trainIdx].pt for m in good])
 

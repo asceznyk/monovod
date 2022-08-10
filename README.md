@@ -1,2 +1,2 @@
 # vslam
-Monocular vSLAM written in python
+Monocular visual odometry written in python
