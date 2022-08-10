@@ -10,7 +10,8 @@ from utils import *
 from vodom import *
 from plotting import *
 
-def run(video_path, poses_path=None, calibs_path=None, scl=2):
+def run(video_path, poses_path=None, calibs_path=None):
+    print(video_path)
     cap = cv2.VideoCapture(video_path)
     ret = True 
 
@@ -23,8 +24,10 @@ def run(video_path, poses_path=None, calibs_path=None, scl=2):
         gt_path = [] 
         gt_poses = read_poses(poses_path)
         pbar = tqdm(total=len(gt_poses))
+    else:
+        gt_path = None
+        pbar = tqdm(total=1000) ## this is a dummy!
 
-    pbar = tqdm(total=1000) ## this is a dummy!
     while ret: 
         ret, img = cap.read()
         if ret:
@@ -48,4 +51,6 @@ def run(video_path, poses_path=None, calibs_path=None, scl=2):
 
 if __name__ == '__main__':
     print(sys.argv)
-    run(*sys.argv)
+    run(*list(sys.argv[1:]))
+
+

@@ -30,17 +30,16 @@ def visualize_paths(pred_path, gt_path=None, html_tile="", title="VO exercises",
         source = ColumnDataSource(data=dict(gtx=gt_path[:,0], gty=gt_path[:,1],
                                             px=pred_path[:,0], py=pred_path[:,1],
                                             disx=xs, disy=ys))
-    else:
-        source = ColumnDataSource(data=dict(px=pred_path[:,0], py=pred_path[:,1]))
 
         fig1.circle("gtx", "gty", source=source, color="blue", hover_fill_color="firebrick", legend_label="GT")
         fig1.line("gtx", "gty", source=source, color="blue", legend_label="GT")
         fig1.multi_line("disx", "disy", source=source, legend_label="Error", color="red", line_dash="dashed")
+    else:
+        source = ColumnDataSource(data=dict(px=pred_path[:,0], py=pred_path[:,1]))
    
     fig1.circle("px", "py", source=source, color="green", hover_fill_color="firebrick", legend_label="Pred")
     fig1.line("px", "py", source=source, color="green", legend_label="Pred")
     fig1.legend.click_policy = "hide"
-
 
     show(layout([Div(text=f"<h1>{title}</h1>"),
                  Div(text="<h2>Paths</h1>"),

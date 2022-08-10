@@ -1,7 +1,7 @@
 import numpy as np
 
 def init_cam_intrinsics(img):
-    h, w = img.shape[1]//scl, img.shape[0]
+    h, w = img.shape[1], img.shape[0]
     f = 716 ##this is pre-selected 
     pm = np.array([
         [f, 0, h//2, 0],
