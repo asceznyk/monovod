@@ -47,7 +47,7 @@ def run(video_path, poses_path, calibs_path):
         gt_path.append((gt_poses[f][0, 3], gt_poses[f][2, 3]))
         est_path.append((cur_pose[0, 3], cur_pose[2, 3]))
     
-    visualize_paths(gt_path, est_path, f"vSLAM_{video_path}", file_out=os.path.basename(video_path.replace('.avi', '')) + ".html")
+    visualize_paths(gt_path, est_path, "vODOM: visual ODOMetry", file_out=os.path.basename(video_path.replace('.avi', '')) + ".html")
     return
 
 run(sys.argv[1], sys.argv[2], sys.argv[3])
