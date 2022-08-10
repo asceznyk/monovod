@@ -16,18 +16,20 @@ class vODOM():
 
     def add_frame(self, f):
         self.frames.append(f)
-        return len(self.frames)
+        return len(self.frames)-1
 
-    def get_matches(self, draw_matches=1):
-        #img1, img2 = self.frames[-2], self.frames[-1]
+    def get_matches(self, draw_matches=0):
         kp1, des1 = self.orb.detectAndCompute(self.frames[-2], None) 
         kp2, des2 = self.orb.detectAndCompute(self.frames[-1], None)
         matches = self.flann.knnMatch(des1, des2, k=2)
 
         good = []
-        for i,(m,n) in enumerate(matches):
-            if m.distance < 0.7 * n.distance:
-                good.append(m)
+        try:
+            for i,(m,n) in enumerate(matches):
+                if m.distance < 0.7 * n.distance:
+                    good.append(m)
+        except ValueError:
+            pass
 
         if draw_matches:
             draw_params = dict(matchColor = -1,
@@ -35,11 +37,12 @@ class vODOM():
                                matchesMask = None,
                                flags = 2)
 
-            #img3 = cv2.drawMatches(self.frames[-1], kp1, self.frames[-2], kp2, good, None, **draw_params)
-            #cv2.imshow('dosent_matter',img3)
-            #cv2.waitKey(200)
+            img3 = cv2.drawMatches(self.frames[-2], kp1, self.frames[-1], kp2, good, None, **draw_params)
+            cv2.imshow('doesnt_matter',img3)
+            cv2.waitKey(200)
 
         return np.float32([kp1[m.queryIdx].pt for m in good]), np.float32([kp2[m.trainIdx].pt for m in good])
+        
 
     def tsfm_mat(self, r, t):
         z = np.eye(4, dtype=np.float64)
@@ -88,7 +91,7 @@ class vODOM():
     def get_pose(self, q1, q2):
         e, _ = cv2.findEssentialMat(q1, q2, self.cm, threshold=1)
         [r, t] = self.decomp_essential_mat(e, q1, q2) 
-        return self.tsfm_mat(r, t.flatten())
+        return self.tsfm_mat(r, np.squeeze(t))
 
 
 

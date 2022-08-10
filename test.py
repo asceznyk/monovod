@@ -4,53 +4,40 @@ import cv2
 
 import numpy as np
 
-import matplotlib.pyplot as plt
+from tqdm import tqdm
 
 from utils import *
 from vodom import *
 from plotting import *
 
-def init_image_scale(img, scl=2):
-    h, w = img.shape[1]//scl, img.shape[0]//scl
-    f = 716//scl ##these are pre-selected values 
-    cm = np.array([
-        [f, 0, h//2],
-        [0, f, w//2],
-        [0, 0, 1],
-    ])
-
-    return h, w, cm, (f, f)
-
-def run(video_path, poses_path, calibs_path):
+def run(video_path, poses_path, calibs_path, scl=2):
     cap = cv2.VideoCapture(video_path)
-    ret = True
-    f = 0
+    ret = True    
 
-    _, img = cap.read()
-    h, w, cm, _ = init_image_scale(img, scl=1)
     vodom = vODOM(calibs_path, None)
     cur_pose = np.eye(4)
 
     est_path = []
     gt_path = [] 
     gt_poses = read_poses(poses_path)
+    pbar = tqdm(total=len(gt_poses))
     while ret: 
         ret, img = cap.read()
         if ret:
             img = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY) 
-            img = cv2.resize(img, (h,w)) 
-            f = vodom.add_frame(img)-1
+            f = vodom.add_frame(img)
 
             if f > 0: 
-                q1, q2 = vodom.get_matches(draw_matches=1)
+                q1, q2 = vodom.get_matches()
                 tsfm = vodom.get_pose(q1, q2)
-                cur_pose = np.matmul(cur_pose, np.linalg.inv(tsfm)) 
+                cur_pose = np.matmul(cur_pose, np.linalg.inv(tsfm))  
+
+            pbar.update(1)
 
         gt_path.append((gt_poses[f][0, 3], gt_poses[f][2, 3]))
-        est_path.append((cur_pose[0, 3], cur_pose[2, 3]))
-    
-    visualize_paths(gt_path, est_path, "vODOM: visual ODOMetry", file_out=os.path.basename(video_path.replace('.avi', '')) + ".html")
-    return
+        est_path.append((cur_pose[0, 3], cur_pose[2, 3])) 
+    visualize_paths(gt_path, est_path, "vODOM: visual ODOMetry", file_out=os.path.basename(video_path.replace('.avi', '')) + ".html") 
 
-run(sys.argv[1], sys.argv[2], sys.argv[3])
+if __name__ == '__main__':
+    run(sys.argv[1], sys.argv[2], sys.argv[3])
 
