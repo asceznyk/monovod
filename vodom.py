@@ -3,7 +3,7 @@ import numpy as np
 
 from utils import *
 
-class vSLAM():
+class vODOM():
     def __init__(self, calibs_path, cm=None):
         self.orb = cv2.ORB_create(3000) 
         index_params = dict(algorithm=6, table_number=6, key_size=12, multi_probe_level=1)
@@ -49,10 +49,11 @@ class vSLAM():
     
     def decomp_essential_mat(self, e, q1, q2): 
         def sum_z_cal_relative_scale(r, t):
-            t = self.tsfm_mat(r, t)
-            p = np.matmul(np.concatenate((self.cm, np.zeros((3, 1))), axis=1), t)
+            x = self.tsfm_mat(r, t)
+            p = np.matmul(np.concatenate((self.cm, np.zeros((3, 1))), axis=1), x)
+            
             hom_q1 = cv2.triangulatePoints(self.pm, p, q1.T, q2.T)
-            hom_q2 = np.matmul(t, hom_q1)
+            hom_q2 = np.matmul(x, hom_q1)
 
             uhom_q1 = hom_q1[:3, :] / hom_q1[3, :]
             uhom_q2 = hom_q2[:3, :] / hom_q2[3, :]

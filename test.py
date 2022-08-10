@@ -7,7 +7,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 from utils import *
-from vslam import *
+from vodom import *
 from plotting import *
 
 def init_image_scale(img, scl=2):
@@ -28,7 +28,7 @@ def run(video_path, poses_path, calibs_path):
 
     _, img = cap.read()
     h, w, cm, _ = init_image_scale(img, scl=1)
-    vslam = vSLAM(calibs_path, None)
+    vodom = vODOM(calibs_path, None)
     cur_pose = np.eye(4)
 
     est_path = []
@@ -39,10 +39,10 @@ def run(video_path, poses_path, calibs_path):
         if ret:
             img = cv2.resize(img, (h,w)) 
             if f > 1: 
-                q1, q2 = vslam.get_matches()
-                tsfm = vslam.get_pose(q1, q2)
+                q1, q2 = vodom.get_matches(draw_matches=0)
+                tsfm = vodom.get_pose(q1, q2)
                 cur_pose = np.matmul(cur_pose, np.linalg.inv(tsfm))
-            f = vslam.add_frame(img)
+            f = vodom.add_frame(img)
 
         gt_path.append((gt_poses[f][0, 3], gt_poses[f][2, 3]))
         est_path.append((cur_pose[0, 3], cur_pose[2, 3]))
