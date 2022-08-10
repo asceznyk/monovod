@@ -3,7 +3,7 @@ import numpy as np
 
 from utils import *
 
-class vODOM():
+class MONOVOD():
     def __init__(self, calibs_path=None):
         self.orb = cv2.ORB_create(3000) 
         index_params = dict(algorithm=6, table_number=6, key_size=12, multi_probe_level=1)
@@ -60,7 +60,7 @@ class vODOM():
             x = self.tsfm_mat(r, t)
             p = np.matmul(np.concatenate((self.cm, np.zeros((3, 1))), axis=1), x)
             
-            hom_q1 = cv2.triangulatePoints(self.pm, p, q1.T, q2.T)
+            hom_q1 = cv2.triangulatePoints(self.pm, p, q1.T, q2.T)  ## very important
             hom_q2 = np.matmul(x, hom_q1)
 
             uhom_q1 = hom_q1[:3, :] / hom_q1[3, :]
@@ -69,8 +69,8 @@ class vODOM():
             sum_of_pos_z_q1 = sum(uhom_q1[2, :] > 0)
             sum_of_pos_z_q2 = sum(uhom_q2[2, :] > 0)
 
-            relative_scale = np.mean(np.linalg.norm(uhom_q1.T[:-1] - uhom_q1.T[1:], axis=-1)/
-                                     np.linalg.norm(uhom_q2.T[:-1] - uhom_q2.T[1:], axis=-1))
+            relative_scale = np.mean(np.linalg.norm(uhom_q1.T[:-1] - uhom_q1.T[1:], axis=-1)/np.linalg.norm(uhom_q2.T[:-1] - uhom_q2.T[1:], axis=-1))
+
             return sum_of_pos_z_q1 + sum_of_pos_z_q2, relative_scale
 
         r1, r2, t = cv2.decomposeEssentialMat(e)

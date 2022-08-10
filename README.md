@@ -1,2 +1,2 @@
-# vODOM #
-Monocular visual odometry written in python
+# MONOVOD #
+MONOcular Visual ODometry written in python
