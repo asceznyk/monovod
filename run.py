@@ -11,7 +11,6 @@ from vodom import *
 from plotting import *
 
 def run(video_path, poses_path=None, calibs_path=None):
-    print(video_path)
     cap = cv2.VideoCapture(video_path)
     ret = True 
 
