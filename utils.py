@@ -1,11 +1,10 @@
 import numpy as np
 
-def init_cam_intrinsics(img):
-    h, w = img.shape[1], img.shape[0]
-    f = 716 ##this is pre-selected 
+def init_cam_intrinsics(img, f):
+    w, h = img.shape[1], img.shape[0]
     pm = np.array([
-        [f, 0, h//2, 0],
-        [0, f, w//2, 0],
+        [f, 0, w//2, 0],
+        [0, f, h//2, 0],
         [0, 0, 1, 0],
     ], dtype=np.float64)    
     return pm, pm[:3, :3] 

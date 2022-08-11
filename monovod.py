@@ -4,19 +4,20 @@ import numpy as np
 from utils import *
 
 class MONOVOD():
-    def __init__(self, calibs_path=None):
-        self.orb = cv2.ORB_create(3000) 
+    def __init__(self, calibs_path=None, f=716, n_feat=3000):
+        self.orb = cv2.ORB_create(n_feat) 
         index_params = dict(algorithm=6, table_number=6, key_size=12, multi_probe_level=1)
         search_params = dict(checks=50)
         self.flann = cv2.FlannBasedMatcher(indexParams=index_params, searchParams=search_params)
         self.frames = []
+        self.f = f
         self.pm, self.cm = None, None
         if calibs_path is not None:
             self.pm, self.cm = read_calib(calibs_path)
             print(self.pm)
 
     def fill_calib(self):
-        self.pm, self.cm = init_cam_intrinsics(self.frames[-1]) 
+        self.pm, self.cm = init_cam_intrinsics(self.frames[-1], self.f) 
         print(self.pm)
 
     def add_frame(self, f):
@@ -29,12 +30,9 @@ class MONOVOD():
         matches = self.flann.knnMatch(des1, des2, k=2)
 
         good = []
-        try:
-            for i,(m,n) in enumerate(matches):
-                if m.distance < 0.7 * n.distance:
-                    good.append(m)
-        except ValueError:
-            pass
+        for i,(m,n) in enumerate(matches):
+            if m.distance < 0.7 * n.distance:
+                good.append(m)
 
         if draw_matches:
             draw_params = dict(matchColor = -1,
@@ -69,7 +67,10 @@ class MONOVOD():
             sum_of_pos_z_q1 = sum(uhom_q1[2, :] > 0)
             sum_of_pos_z_q2 = sum(uhom_q2[2, :] > 0)
 
-            relative_scale = np.mean(np.linalg.norm(uhom_q1.T[:-1] - uhom_q1.T[1:], axis=-1)/np.linalg.norm(uhom_q2.T[:-1] - uhom_q2.T[1:], axis=-1))
+            relative_scale = np.mean(
+                np.linalg.norm(uhom_q1.T[:-1] - uhom_q1.T[1:], axis=-1) / 
+                np.linalg.norm(uhom_q2.T[:-1] - uhom_q2.T[1:], axis=-1)
+            )
 
             return sum_of_pos_z_q1 + sum_of_pos_z_q2, relative_scale
 
@@ -77,21 +78,13 @@ class MONOVOD():
         t = np.squeeze(t)
 
         pairs = [[r1, t], [r1, -t], [r2, t], [r2, -t]]
+        sumzs = []
+        for i, [r, t] in enumerate(pairs): 
+            sumzs.append((i, *sum_z_cal_relative_scale(r, t)))
 
-        z_sums = []
-        relative_scales = []
-        for r, t in pairs:
-            z_sum, scale = sum_z_cal_relative_scale(r, t)
-            z_sums.append(z_sum)
-            relative_scales.append(scale)
-
-        right_pair_idx = np.argmax(z_sums)
-        right_pair = pairs[right_pair_idx]
-        relative_scale = relative_scales[right_pair_idx]
-        r1, t = right_pair
-        t = t * relative_scale
-
-        return [r1, t]
+        j, _, s = max(sumzs, key=lambda x: x[1])
+        r, t = pairs[j]
+        return [r, s*t]
 
     def get_pose(self, q1, q2):
         e, _ = cv2.findEssentialMat(q1, q2, self.cm, threshold=1)

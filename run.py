@@ -10,11 +10,11 @@ from utils import *
 from monovod import *
 from plotting import *
 
-def run(video_path, poses_path=None, calibs_path=None):
+def run(video_path, poses_path=None, calibs_path=None, fl=716):
     cap = cv2.VideoCapture(video_path)
     ret = True 
 
-    monovod = MONOVOD(calibs_path)
+    monovod = MONOVOD(calibs_path, fl)
     cur_pose = np.eye(4)
 
     est_path = []
