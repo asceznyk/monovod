@@ -55,10 +55,8 @@ class MONOVOD():
     
     def decomp_essential_mat(self, e, q1, q2): 
         def sum_z_cal_relative_scale(r, t):
-            x = self.tsfm_mat(r, t)
-            p = np.matmul(np.concatenate((self.cm, np.zeros((3, 1))), axis=1), x)
-            
-            hom_q1 = cv2.triangulatePoints(self.pm, p, q1.T, q2.T)  ## very important
+            x = self.tsfm_mat(r, t) 
+            hom_q1 = triangulate_points(self.pm, np.matmul(self.pm, x), q1, q2) 
             hom_q2 = np.matmul(x, hom_q1)
 
             uhom_q1 = hom_q1[:3, :] / hom_q1[3, :]

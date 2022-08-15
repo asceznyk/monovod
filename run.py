@@ -25,14 +25,13 @@ def run(video_path, poses_path=None, calibs_path=None, fl=716):
         pbar = tqdm(total=len(gt_poses))
     else:
         gt_path = None
-        pbar = tqdm(total=1000) ## this is a dummy!
+        pbar = tqdm(total=int(cap.get(cv2.CAP_PROP_FRAME_COUNT))) 
 
     while ret: 
         ret, img = cap.read()
         if ret:
             img = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY) 
             f = monovod.add_frame(img)
-
             if f > 0: 
                 q1, q2 = monovod.get_matches()
                 tsfm = monovod.get_pose(q1, q2)
