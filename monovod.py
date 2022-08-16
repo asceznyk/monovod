@@ -46,7 +46,6 @@ class MONOVOD():
 
         return np.float32([kp1[m.queryIdx].pt for m in good]), np.float32([kp2[m.trainIdx].pt for m in good])
         
-
     def tsfm_mat(self, r, t):
         z = np.eye(4, dtype=np.float64)
         z[:3, :3] = r

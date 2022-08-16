@@ -10,12 +10,14 @@ from tqdm import tqdm
 from utils import *
 from monovod import *
 from plotting import *
+from display import *
 
-def run(video_path, poses_path=None, calibs_path=None, focal_length=716):
+def main(video_path, poses_path=None, calibs_path=None, focal_length=716):
     cap = cv2.VideoCapture(video_path)
     ret = True 
 
     monovod = MONOVOD(calibs_path, focal_length)
+    disp_map = DisplayMap()
     cur_pose = np.eye(4)
 
     est_path = []
@@ -53,7 +55,7 @@ if __name__ == '__main__':
     parser.add_argument('--video_path', type=str, required=True, help='path to the video you want to track')
     parser.add_argument('--poses_path', type=str, help='text file contatining the pose matrix for each frame in video')
     parser.add_argument('--calibs_path', type=str, help='text file contatining the projection matrix')
-    parser.add_argument('--focal_length', type=int, help='focal length of the camera for building projection matrix if calibration path is not given')
+    parser.add_argument('--focal_length', type=int, default=716, help='focal length of the camera for building projection matrix if calibration path is not given')
 
     args = parser.parse_args()
     print(args)
