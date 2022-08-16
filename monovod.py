@@ -53,7 +53,7 @@ class MONOVOD():
         z[:3, 3] = t
         return z
     
-    def decomp_essential_mat(self, e, q1, q2): 
+    def calc_rt(self, e, q1, q2): 
         def sum_z_cal_relative_scale(r, t):
             x = self.tsfm_mat(r, t) 
             hom_q1 = triangulate_points(self.pm, np.matmul(self.pm, x), q1, q2) 
@@ -86,7 +86,7 @@ class MONOVOD():
 
     def get_pose(self, q1, q2):
         e, _ = cv2.findEssentialMat(q1, q2, self.cm, threshold=1)
-        [r, t] = self.decomp_essential_mat(e, q1, q2) 
+        [r, t] = self.calc_rt(e, q1, q2) 
         return self.tsfm_mat(r, np.squeeze(t))
 
 

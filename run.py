@@ -1,6 +1,7 @@
 import os
 import sys
 import cv2
+import argparse
 
 import numpy as np
 
@@ -10,11 +11,11 @@ from utils import *
 from monovod import *
 from plotting import *
 
-def run(video_path, poses_path=None, calibs_path=None, fl=716):
+def run(video_path, poses_path=None, calibs_path=None, focal_length=716):
     cap = cv2.VideoCapture(video_path)
     ret = True 
 
-    monovod = MONOVOD(calibs_path, fl)
+    monovod = MONOVOD(calibs_path, focal_length)
     cur_pose = np.eye(4)
 
     est_path = []
@@ -48,7 +49,16 @@ def run(video_path, poses_path=None, calibs_path=None, fl=716):
     visualize_paths(est_path, gt_path, f"MONOVOD_{video_name}", file_out= f"{video_name}.html") 
 
 if __name__ == '__main__':
-    print(sys.argv)
-    run(*list(sys.argv[1:]))
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--video_path', type=str, required=True, help='path to the video you want to track')
+    parser.add_argument('--poses_path', type=str, help='text file contatining the pose matrix for each frame in video')
+    parser.add_argument('--calibs_path', type=str, help='text file contatining the projection matrix')
+    parser.add_argument('--focal_length', type=int, help='focal length of the camera for building projection matrix if calibration path is not given')
 
+    args = parser.parse_args()
+    print(args)
 
+    list_args = []
+    for k in args.__dict__:
+        list_args.append(args.__dict__[k])
+    main(*list_args)
