@@ -64,6 +64,11 @@ class MONOVOD():
         z[:3, :3] = r
         z[:3, 3] = t
         return z
+
+    def project_points(self, pose):
+        pts = self.mapp.points[-1]
+        pts = np.vstack((pts, np.ones((1, pts.shape[1]))))
+        self.mapp.points[-1] = np.matmul(pose, pts)[:3] 
     
     def calc_rt(self, e, q1, q2): 
         def sum_z_cal_relative_scale(r, t):
@@ -99,9 +104,7 @@ class MONOVOD():
 
     def get_pose(self, q1, q2):
         e, _ = cv2.findEssentialMat(q1, q2, self.cm, threshold=1)
-        [r, t] = self.calc_rt(e, q1, q2) 
-        pose = self.tsfm_mat(r, np.squeeze(t)) 
-        return pose
-
+        [r, t] = self.calc_rt(e, q1, q2)
+        return self.tsfm_mat(r, np.squeeze(t)) 
 
 
