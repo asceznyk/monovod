@@ -38,7 +38,9 @@ def main(video_path, poses_path=None, calibs_path=None, focal_length=716):
             if f > 0: 
                 q1, q2 = monovod.get_matches()
                 tsfm = monovod.get_pose(q1, q2)
-                cur_pose = np.matmul(cur_pose, np.linalg.inv(tsfm))
+                cur_pose = np.matmul(cur_pose, np.linalg.inv(tsfm)) 
+                monovod.mapp.add_pose(cur_pose)
+                disp_map.paint(monovod.mapp)
             
             if calibs_path is None and f == 0:
                 monovod.fill_calib()

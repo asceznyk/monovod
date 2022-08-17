@@ -3,6 +3,17 @@ import numpy as np
 
 from utils import *
 
+class Map():
+    def __init__(self):
+        self.points = []
+        self.poses = []
+
+    def add_points(self, points):
+        self.points.append(points)
+
+    def add_pose(self, pose):
+        self.poses.append(pose)
+
 class MONOVOD():
     def __init__(self, calibs_path=None, f=716, n_feat=3000):
         self.orb = cv2.ORB_create(n_feat) 
@@ -15,6 +26,8 @@ class MONOVOD():
         if calibs_path is not None:
             self.pm, self.cm = read_calib(calibs_path)
             print(self.pm)
+
+        self.mapp = Map() 
 
     def fill_calib(self):
         self.pm, self.cm = init_cam_intrinsics(self.frames[-1], self.f) 
@@ -69,7 +82,7 @@ class MONOVOD():
                 np.linalg.norm(uhom_q2.T[:-1] - uhom_q2.T[1:], axis=-1)
             )
 
-            return sum_of_pos_z_q1 + sum_of_pos_z_q2, relative_scale
+            return uhom_q1, sum_of_pos_z_q1 + sum_of_pos_z_q2, relative_scale
 
         r1, r2, t = cv2.decomposeEssentialMat(e)
         t = np.squeeze(t)
@@ -79,14 +92,16 @@ class MONOVOD():
         for i, [r, t] in enumerate(pairs): 
             sumzs.append((i, *sum_z_cal_relative_scale(r, t)))
 
-        j, _, s = max(sumzs, key=lambda x: x[1])
+        j, pts, _, s = max(sumzs, key=lambda x: x[2])
         r, t = pairs[j]
+        self.mapp.add_points(pts)
         return [r, s*t]
 
     def get_pose(self, q1, q2):
         e, _ = cv2.findEssentialMat(q1, q2, self.cm, threshold=1)
         [r, t] = self.calc_rt(e, q1, q2) 
-        return self.tsfm_mat(r, np.squeeze(t))
+        pose = self.tsfm_mat(r, np.squeeze(t)) 
+        return pose
 
 
 
