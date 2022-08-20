@@ -1,4 +1,7 @@
 import cv2
+import ipdb
+import warnings
+
 import numpy as np
 
 from utils import *
@@ -43,9 +46,12 @@ class MONOVOD():
         matches = self.flann.knnMatch(des1, des2, k=2)
 
         good = []
-        for i,(m,n) in enumerate(matches):
-            if m.distance < 0.7 * n.distance:
-                good.append(m)
+        try:
+            for i,(m,n) in enumerate(matches):
+                if m.distance < 0.7 * n.distance:
+                    good.append(m)
+        except:
+            pass
 
         if draw_matches:
             draw_params = dict(matchColor = -1,
@@ -57,7 +63,7 @@ class MONOVOD():
             cv2.imshow('doesnt_matter',img3)
             cv2.waitKey(200)
 
-        return np.float32([kp1[m.queryIdx].pt for m in good]), np.float32([kp2[m.trainIdx].pt for m in good])
+        return np.float64([kp1[m.queryIdx].pt for m in good]), np.float64([kp2[m.trainIdx].pt for m in good])
         
     def tsfm_mat(self, r, t):
         z = np.eye(4, dtype=np.float64)
@@ -72,20 +78,25 @@ class MONOVOD():
     
     def calc_rt(self, e, q1, q2): 
         def sum_z_cal_relative_scale(r, t):
-            x = self.tsfm_mat(r, t) 
-            hom_q1 = triangulate_points(self.pm, np.matmul(self.pm, x), q1, q2) 
+            x = self.tsfm_mat(r, t)
+
+            hom_q1 = cv2.triangulatePoints(self.pm, np.matmul(self.pm, x), q1.T, q2.T) 
             hom_q2 = np.matmul(x, hom_q1)
 
-            uhom_q1 = hom_q1[:3, :] / hom_q1[3, :]
-            uhom_q2 = hom_q2[:3, :] / hom_q2[3, :]
+            uhom_q1 = hom_q1[:3, :] / (hom_q1[3, :] + 1e-24)
+            uhom_q2 = hom_q2[:3, :] / (hom_q2[3, :] + 1e-24)
 
             sum_of_pos_z_q1 = sum(uhom_q1[2, :] > 0)
             sum_of_pos_z_q2 = sum(uhom_q2[2, :] > 0)
 
-            relative_scale = np.mean(
-                np.linalg.norm(uhom_q1.T[:-1] - uhom_q1.T[1:], axis=-1) / 
-                np.linalg.norm(uhom_q2.T[:-1] - uhom_q2.T[1:], axis=-1)
-            )
+            try:
+                relative_scale = np.mean(
+                    np.linalg.norm(uhom_q1.T[:-1] - uhom_q1.T[1:], axis=-1) / 
+                    np.linalg.norm(uhom_q2.T[:-1] - uhom_q2.T[1:], axis=-1),
+                    dtype=np.float128
+                ) ##ashamed of this but it's a quick fix!
+            except RuntimeWarning:
+                ipdb.set_trace() ##keep this for debugging
 
             return uhom_q1, sum_of_pos_z_q1 + sum_of_pos_z_q2, relative_scale
 
@@ -97,13 +108,13 @@ class MONOVOD():
         for i, [r, t] in enumerate(pairs): 
             sumzs.append((i, *sum_z_cal_relative_scale(r, t)))
 
-        j, pts, _, s = max(sumzs, key=lambda x: x[2])
+        j, pts, z, s = max(sumzs, key=lambda x: x[2])
         r, t = pairs[j]
         self.mapp.add_points(pts)
         return [r, s*t]
 
     def get_pose(self, q1, q2):
-        e, _ = cv2.findEssentialMat(q1, q2, self.cm, threshold=1)
+        e, m = cv2.findEssentialMat(q1, q2, self.cm, threshold=1)
         [r, t] = self.calc_rt(e, q1, q2)
         return self.tsfm_mat(r, np.squeeze(t)) 
 

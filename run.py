@@ -1,6 +1,7 @@
 import os
 import sys
 import cv2
+import ipdb
 import argparse
 
 import numpy as np
@@ -50,7 +51,7 @@ def main(video_path, poses_path=None, calibs_path=None, focal_length=716):
         
         if poses_path is not None: gt_path.append((gt_poses[f][0, 3], gt_poses[f][2, 3])) 
         est_path.append((cur_pose[0, 3], cur_pose[2, 3])) 
-    video_name = os.path.basename(video_path.replace('.avi', ''))
+    video_name = os.path.basename(video_path).split('.')[0]
     visualize_paths(est_path, gt_path, f"MONOVOD_{video_name}", file_out= f"{video_name}.html") 
 
 if __name__ == '__main__':

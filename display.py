@@ -37,7 +37,7 @@ class DisplayMap:
         self.dcam.SetHandler(self.handler)
         self.dcam.Activate() 
 
-    def viewer_refresh(self, q):
+    def viewer_refresh(self, q, display_points=0):
         while not q.empty():
             self.state = q.get()
 
@@ -54,10 +54,11 @@ class DisplayMap:
                 gl.glColor3f(0.0, 1.0, 0.0)
                 pangolin.DrawCameras(self.state[1][-1:])
 
-            if self.state[0].shape[0] != 0:
-                gl.glPointSize(5)
-                gl.glColor3f(0.0, 0.0, 1.0)
-                pangolin.DrawPoints(self.state[0])
+            if display_points:
+                if self.state[0].shape[0] != 0:
+                    gl.glPointSize(5)
+                    gl.glColor3f(0.0, 0.0, 1.0)
+                    pangolin.DrawPoints(self.state[0])
 
         pangolin.FinishFrame()
 
