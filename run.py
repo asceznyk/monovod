@@ -37,9 +37,8 @@ def main(video_path, poses_path=None, calibs_path=None, output_dir='html', focal
             img = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY) 
             f = monovod.add_frame(img)
             if f > 0: 
-                q1, q2 = monovod.get_matches()
-                tsfm = monovod.get_pose(q1, q2)
-                cur_pose = np.matmul(cur_pose, np.linalg.inv(tsfm)) 
+                q1, q2 = monovod.get_matches() 
+                cur_pose = cur_pose @ monovod.get_pose(q1, q2)
                 monovod.mapp.add_pose(cur_pose)
                 monovod.project_points(cur_pose)
                 disp_map.paint(monovod.mapp)

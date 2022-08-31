@@ -37,7 +37,7 @@ class DisplayMap:
         self.dcam.SetHandler(self.handler)
         self.dcam.Activate() 
 
-    def viewer_refresh(self, q, display_points=0):
+    def viewer_refresh(self, q, display_points=1):
         while not q.empty():
             self.state = q.get()
 

@@ -74,7 +74,7 @@ class MONOVOD():
     def project_points(self, pose):
         pts = self.mapp.points[-1]
         pts = np.vstack((pts, np.ones((1, pts.shape[1]))))
-        self.mapp.points[-1] = (pose @ pts)[:3] 
+        self.mapp.points[-1] = np.matmul(pose, pts)[:3] 
     
     def calc_rt(self, e, q1, q2): 
         def sum_z_cal_relative_scale(r, t):
