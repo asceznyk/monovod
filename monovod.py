@@ -20,9 +20,7 @@ class Map():
 class MONOVOD():
     def __init__(self, calibs_path=None, f=716, n_feat=3000):
         self.orb = cv2.ORB_create(n_feat) 
-        index_params = dict(algorithm=6, table_number=6, key_size=12, multi_probe_level=1)
-        search_params = dict(checks=50)
-        self.flann = cv2.FlannBasedMatcher(indexParams=index_params, searchParams=search_params)
+        self.bf = cv2.BFMatcher(cv2.NORM_HAMMING)
         self.frames = []
         self.f = f
         self.pm, self.cm = None, None
@@ -43,7 +41,8 @@ class MONOVOD():
     def get_matches(self, draw_matches=0):
         kp1, des1 = self.orb.detectAndCompute(self.frames[-2], None) 
         kp2, des2 = self.orb.detectAndCompute(self.frames[-1], None)
-        matches = self.flann.knnMatch(des1, des2, k=2)
+
+        matches = self.bf.knnMatch(des1, des2, k=2)
 
         good = []
         try:
