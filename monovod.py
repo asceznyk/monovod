@@ -75,9 +75,20 @@ class MONOVOD():
         pts = np.vstack((pts, np.ones((1, pts.shape[1]))))
         self.mapp.points[-1] = (pose @ pts)[:3] 
     
-    def calc_rt(self, e, q1, q2): 
+    def calc_rt(self, e, q1, q2):
+        def decompose_mat(e):
+            w = np.array([[0,-1,0], [1,0,0], [0,0,1]])
+            u, s, vt = np.linalg.svd(e)
+            if np.linalg.det(u) < 0: u *= -1
+            if np.linalg.det(vt) < 0: vt *= -1
+            r1, r2 = u @ w @ vt, u @ w.T @ vt
+            t = u[:,2]
+            return r1, r2, t
+
         def sum_z_cal_relative_scale(r, t):
             x = self.tsfm_mat(r, t)
+            print(q1)
+            print(q2)
             hom_q1 = cv2.triangulatePoints(self.pm, self.pm @ x, q1.T, q2.T) 
             hom_q2 = x @ hom_q1
 
@@ -96,11 +107,9 @@ class MONOVOD():
             except RuntimeWarning:
                 ipdb.set_trace() ##keep this for debugging
 
-            return uhom_q1, sum_of_pos_z_q1 + sum_of_pos_z_q2, relative_scale
+            return uhom_q1, sum_of_pos_z_q1 + sum_of_pos_z_q2, relative_scale 
 
-        r1, r2, t = cv2.decomposeEssentialMat(e)
-        t = np.squeeze(t)
-
+        r1, r2, t = decompose_mat(e)
         pairs = [[r1, t], [r1, -t], [r2, t], [r2, -t]]
         sumzs = []
         for i, [r, t] in enumerate(pairs): 
