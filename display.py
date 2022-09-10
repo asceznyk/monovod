@@ -56,8 +56,8 @@ class DisplayMap:
 
         pangolin.FinishFrame()
 
-    def paint(self, mapp):
-        self.q.put(np.array(mapp.poses))
+    def paint(self, graph):
+        self.q.put(np.array(graph.poses))
 
 
 

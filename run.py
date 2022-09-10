@@ -39,9 +39,8 @@ def main(video_path, poses_path=None, calibs_path=None, output_dir='html', focal
             if f > 0: 
                 q1, q2 = monovod.get_matches() 
                 cur_pose = cur_pose @ monovod.get_pose(q1, q2)
-                monovod.mapp.add_pose(cur_pose)
-                monovod.project_points(cur_pose)
-                disp_map.paint(monovod.mapp)
+                monovod.poses.append(cur_pose)
+                disp_map.paint(monovod)
             
             if calibs_path is None and f == 0:
                 monovod.fill_calib()

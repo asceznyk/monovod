@@ -1,21 +1,8 @@
 import cv2
-import ipdb
-import warnings
 
 import numpy as np
 
 from utils import *
-
-class Map():
-    def __init__(self):
-        self.points = []
-        self.poses = []
-
-    def add_points(self, points):
-        self.points.append(points)
-
-    def add_pose(self, pose):
-        self.poses.append(pose)
 
 class MONOVOD():
     def __init__(self, calibs_path=None, f=716, n_feat=3000):
@@ -28,7 +15,7 @@ class MONOVOD():
             self.pm, self.cm = read_calib(calibs_path)
             print(self.pm)
 
-        self.mapp = Map() 
+        self.poses = []
 
     def fill_calib(self):
         self.pm, self.cm = init_cam_intrinsics(self.frames[-1], self.f) 
@@ -69,11 +56,6 @@ class MONOVOD():
         z[:3, :3] = r
         z[:3, 3] = t
         return z
-
-    def project_points(self, pose):
-        pts = self.mapp.points[-1]
-        pts = np.vstack((pts, np.ones((1, pts.shape[1]))))
-        self.mapp.points[-1] = (pose @ pts)[:3] 
     
     def calc_rt(self, e, q1, q2):
         def decompose_mat(e):
@@ -87,27 +69,18 @@ class MONOVOD():
 
         def sum_z_cal_relative_scale(r, t):
             x = self.tsfm_mat(r, t)
-            print(q1)
-            print(q2)
             hom_q1 = cv2.triangulatePoints(self.pm, self.pm @ x, q1.T, q2.T) 
             hom_q2 = x @ hom_q1
 
             uhom_q1 = hom_q1[:3, :] / (hom_q1[3, :] + 1e-24)
-            uhom_q2 = hom_q2[:3, :] / (hom_q2[3, :] + 1e-24)
+            uhom_q2 = hom_q2[:3, :] / (hom_q2[3, :] + 1e-24) 
 
-            sum_of_pos_z_q1 = sum(uhom_q1[2, :] > 0)
-            sum_of_pos_z_q2 = sum(uhom_q2[2, :] > 0)
-
-            try:
-                relative_scale = np.mean(
-                    np.linalg.norm(uhom_q1.T[:-1] - uhom_q1.T[1:], axis=-1) / 
-                    np.linalg.norm(uhom_q2.T[:-1] - uhom_q2.T[1:], axis=-1),
-                    dtype=np.float128
-                ) ##ashamed of this but it's a quick fix!
-            except RuntimeWarning:
-                ipdb.set_trace() ##keep this for debugging
-
-            return uhom_q1, sum_of_pos_z_q1 + sum_of_pos_z_q2, relative_scale 
+            scale = np.mean(
+                np.linalg.norm(uhom_q1.T[:-1] - uhom_q1.T[1:], axis=-1) / 
+                np.linalg.norm(uhom_q2.T[:-1] - uhom_q2.T[1:], axis=-1),
+                dtype=np.float128
+            ) 
+            return sum(uhom_q1[2, :] > 0) + sum(uhom_q2[2, :] > 0), scale 
 
         r1, r2, t = decompose_mat(e)
         pairs = [[r1, t], [r1, -t], [r2, t], [r2, -t]]
@@ -115,14 +88,12 @@ class MONOVOD():
         for i, [r, t] in enumerate(pairs): 
             sumzs.append((i, *sum_z_cal_relative_scale(r, t)))
 
-        j, pts, z, s = max(sumzs, key=lambda x: x[2])
+        j, _, s = max(sumzs, key=lambda x: x[1])
         r, t = pairs[j]
-        self.mapp.add_points(pts)
         return [r, s*t]
 
     def get_pose(self, q1, q2):
-        e, m = cv2.findEssentialMat(q1, q2, self.cm, threshold=1)
-        [r, t] = self.calc_rt(e, q1, q2)
-        return np.linalg.inv(self.tsfm_mat(r, np.squeeze(t))) 
-
+        e, _ = cv2.findEssentialMat(q2, q1, self.cm, threshold=1)
+        [r, t] = self.calc_rt(e, q2, q1)
+        return self.tsfm_mat(r, np.squeeze(t))
 
